@@ -41,13 +41,13 @@ export function Footer({ brandName, brandLink, routes }) {
 }
 
 Footer.defaultProps = {
-  brandName: "Creative Tim",
-  brandLink: "https://www.creative-tim.com",
+  brandName: "Matheus França",
+  brandLink: "https://www.linkedin.com/in/matheus-fran%C3%A7a-963026337/",
   routes: [
-    { name: "Creative Tim", path: "https://www.creative-tim.com" },
-    { name: "About Us", path: "https://www.creative-tim.com/presentation" },
-    { name: "Blog", path: "https://www.creative-tim.com/blog" },
-    { name: "License", path: "https://www.creative-tim.com/license" },
+    { name: "Matheus França", path: "https://www.linkedin.com/in/matheus-fran%C3%A7a-963026337/" },
+    { name: "About Us", path: "https://www.linkedin.com/in/matheus-fran%C3%A7a-963026337/" },
+    { name: "Blog", path: "https://www.linkedin.com/in/matheus-fran%C3%A7a-963026337/" },
+    { name: "License", path: "https://www.linkedin.com/in/matheus-fran%C3%A7a-963026337/" },
   ],
 };
 

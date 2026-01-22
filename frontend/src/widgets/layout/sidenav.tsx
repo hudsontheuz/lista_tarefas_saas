@@ -81,8 +81,10 @@ export function Sidenav({ routes }: SidenavProps) {
               </li>
             )}
 
-            {pages.map(({ icon, name, path }) => (
-              <li key={name}>
+            {pages
+              .filter((page) => page.name)
+              .map(({ icon, name, path }) => (
+              <li key={path}>
                 <NavLink to={`/${layout}${path}`}>
                   {({ isActive }) => (
                     <Button

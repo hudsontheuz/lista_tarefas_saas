@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { Home, Settings, Tasks, Projects } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
+import NewProject from "@/pages/projects/newProject";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -24,10 +25,10 @@ export const routes = [
         element: <Home />,
       },
       {
-        icon: <Cog6ToothIcon {...icon} />,
-        name: "settings",
-        path: "/settings",
-        element: <Settings />,
+        icon: <FolderIcon {...icon} />,
+        name: "projects",
+        path: "/projects",
+        element: <Projects />,
       },
       {
         icon: <ClipboardDocumentCheckIcon {...icon} />,
@@ -36,10 +37,10 @@ export const routes = [
         element: <Tasks />,
       },
       {
-        icon: <FolderIcon {...icon} />,
-        name: "projects",
-        path: "/projects",
-        element: <Projects />,
+        icon: <Cog6ToothIcon {...icon} />,
+        name: "settings",
+        path: "/settings",
+        element: <Settings />,
       },
     ],
   },

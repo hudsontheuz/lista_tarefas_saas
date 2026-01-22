@@ -10,8 +10,12 @@ import {
   ClockIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
+
 
 export function Home() {
+  const navigate = useNavigate();
+
   return (
     <div className="mt-12 space-y-12">
       <section className="flex flex-col gap-4 rounded-xl border border-blue-gray-100 bg-white p-8 shadow-sm">
@@ -26,7 +30,7 @@ export function Home() {
         </Typography>
 
         <div className="flex gap-4">
-          <Button color="blue" size="lg">
+          <Button color="blue" size="lg" onClick={() => navigate("/dashboard/projects/newProject")}>
             Criar novo projeto
           </Button>
           <Button variant="outlined" color="blue-gray" size="lg">

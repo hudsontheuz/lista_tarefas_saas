@@ -8,6 +8,7 @@ import {
   Chip,
 } from "@material-tailwind/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
 
 const projects = [
   {
@@ -33,7 +34,9 @@ const projects = [
   },
 ];
 
-export function Projects() {
+export function Projects(): JSX.Element {
+  const navigate = useNavigate();
+
   return (
     <div className="mt-12 max-w-6xl space-y-8">
       {/* HEADER */}
@@ -47,7 +50,12 @@ export function Projects() {
           </Typography>
         </div>
 
-        <Button className="flex items-center gap-2">
+        {/* 🔗 MESMO BOTÃO DO HOME */}
+        <Button
+          color="blue"
+          className="flex items-center gap-2"
+          onClick={() => navigate("/dashboard/projects/newProject")}
+        >
           <PlusIcon className="h-5 w-5" />
           Novo projeto
         </Button>
