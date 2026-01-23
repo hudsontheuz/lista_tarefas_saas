@@ -9,18 +9,24 @@ import {
   Select,
   Option,
 } from "@material-tailwind/react";
+import { api } from "../../services/api";
+import { useNavigate } from "react-router-dom";
 
 type NewProjectForm = {
   name: string;
   description: string;
   status: string;
+  prefix: string;
 };
 
 export function NewProject() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState<NewProjectForm>({
     name: "",
     description: "",
     status: "active",
+    prefix: "",
   });
 
   function handleChange(
@@ -31,15 +37,18 @@ export function NewProject() {
   }
 
   async function handleSubmit() {
-    // 🔗 Aqui depois conectamos com o backend
-    console.log("Novo projeto:", form);
+    try {
+      await api.post("/projects", {
+        name: form.name,
+        description: form.description,
+        status: form.status,
+        prefix: form.prefix, // 🔥 NOVA REGRA
+      });
 
-    /*
-    await api.post("/projects", {
-      ...form,
-      user_id: userId
-    });
-    */
+      navigate("/dashboard/projects");
+    } catch (error) {
+      console.error("Erro ao criar projeto", error);
+    }
   }
 
   return (
@@ -54,6 +63,16 @@ export function NewProject() {
               Crie um projeto para organizar suas tarefas.
             </Typography>
           </div>
+
+          {/* PREFIXO */}
+          <Input
+            label="Prefixo do projeto (ex: DEV, APP)"
+            name="prefix"
+            value={form.prefix}
+            onChange={handleChange}
+            required
+            maxLength={5}
+          />
 
           <Input
             label="Nome do projeto"

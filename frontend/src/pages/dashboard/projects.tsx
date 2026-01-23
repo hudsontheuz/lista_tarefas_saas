@@ -1,45 +1,68 @@
+import { useEffect, useState } from "react";
 import {
   Card,
   CardBody,
   CardHeader,
   Typography,
   Button,
-  Progress,
   Chip,
 } from "@material-tailwind/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
+import { api } from "../../services/api";
 
-const projects = [
-  {
-    id: 1,
-    name: "TaskFrança Web",
-    description: "Frontend do sistema TaskFrança",
-    progress: 70,
-    status: "Em andamento",
-  },
-  {
-    id: 2,
-    name: "API TaskFrança",
-    description: "Backend em Go com PostgreSQL",
-    progress: 40,
-    status: "Em andamento",
-  },
-  {
-    id: 3,
-    name: "Landing Page",
-    description: "Página institucional do produto",
-    progress: 100,
-    status: "Concluído",
-  },
-];
+type Project = {
+  id: string;
+  name: string;
+  description: string;
+  status: "active" | "archived" | "done";
+};
 
 export function Projects(): JSX.Element {
   const navigate = useNavigate();
 
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadProjects() {
+      try {
+        const response = await api.get<Project[]>("/projects");
+        setProjects(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar projetos", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProjects();
+  }, []);
+
+  function getStatusColor(status: Project["status"]) {
+    switch (status) {
+      case "done":
+        return "green";
+      case "archived":
+        return "gray";
+      default:
+        return "blue";
+    }
+  }
+
+  function getStatusLabel(status: Project["status"]) {
+    switch (status) {
+      case "done":
+        return "Concluído";
+      case "archived":
+        return "Arquivado";
+      default:
+        return "Ativo";
+    }
+  }
+
   return (
     <div className="mt-12 max-w-6xl space-y-8">
-      {/* HEADER */}
       <div className="flex items-center justify-between">
         <div>
           <Typography variant="h4" color="blue-gray">
@@ -50,7 +73,6 @@ export function Projects(): JSX.Element {
           </Typography>
         </div>
 
-        {/* 🔗 MESMO BOTÃO DO HOME */}
         <Button
           color="blue"
           className="flex items-center gap-2"
@@ -61,61 +83,64 @@ export function Projects(): JSX.Element {
         </Button>
       </div>
 
-      {/* PROJECT LIST */}
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {projects.map((project) => (
-          <Card
-            key={project.id}
-            className="border border-blue-gray-100 shadow-sm"
-          >
-            <CardHeader
-              floated={false}
-              shadow={false}
-              color="transparent"
-              className="p-4"
+      {loading && (
+        <Typography className="text-blue-gray-500">
+          Carregando projetos...
+        </Typography>
+      )}
+
+      {!loading && projects.length === 0 && (
+        <Typography className="text-blue-gray-500">
+          Nenhum projeto encontrado.
+        </Typography>
+      )}
+
+      {!loading && projects.length > 0 && (
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {projects.map((project) => (
+            <Card
+              key={project.id}
+              className="border border-blue-gray-100 shadow-sm"
             >
-              <div className="flex items-center justify-between">
-                <Typography variant="h6" color="blue-gray">
-                  {project.name}
+              <CardHeader
+                floated={false}
+                shadow={false}
+                color="transparent"
+                className="p-4"
+              >
+                <div className="flex items-center justify-between">
+                  <Typography variant="h6" color="blue-gray">
+                    {project.name}
+                  </Typography>
+
+                  <Chip
+                    value={getStatusLabel(project.status)}
+                    color={getStatusColor(project.status)}
+                    size="sm"
+                  />
+                </div>
+              </CardHeader>
+
+              <CardBody className="space-y-4">
+                <Typography className="text-sm text-blue-gray-600">
+                  {project.description}
                 </Typography>
 
-                <Chip
-                  value={project.status}
-                  color={project.progress === 100 ? "green" : "blue"}
+                <Button
+                  variant="outlined"
                   size="sm"
-                />
-              </div>
-            </CardHeader>
-
-            <CardBody className="space-y-4">
-              <Typography className="text-sm text-blue-gray-600">
-                {project.description}
-              </Typography>
-
-              <div>
-                <div className="mb-1 flex justify-between">
-                  <Typography className="text-sm text-blue-gray-500">
-                    Progresso
-                  </Typography>
-                  <Typography className="text-sm text-blue-gray-500">
-                    {project.progress}%
-                  </Typography>
-                </div>
-
-                <Progress
-                  value={project.progress}
-                  color={project.progress === 100 ? "green" : "blue"}
-                  className="h-2"
-                />
-              </div>
-
-              <Button variant="outlined" size="sm" fullWidth>
-                Abrir projeto
-              </Button>
-            </CardBody>
-          </Card>
-        ))}
-      </div>
+                  fullWidth
+                  onClick={() =>
+                    navigate(`/dashboard/projects/${project.id}/tasks/new`)
+                  }
+                >
+                  Abrir projeto
+                </Button>
+              </CardBody>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
