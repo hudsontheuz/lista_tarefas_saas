@@ -6,9 +6,11 @@ import {
   ArrowRightOnRectangleIcon,
   UserPlusIcon,
 } from "@heroicons/react/24/solid";
-import { Home, Settings, Tasks, Projects } from "@/pages/dashboard";
+
+import { Home, Settings, Tasks } from "@/pages/dashboard";
+import { Projects } from "@/pages/dashboard/projects"; 
 import { SignIn, SignUp } from "@/pages/auth";
-import NewProject from "@/pages/projects/newProject";
+
 
 const icon = {
   className: "w-5 h-5 text-inherit",

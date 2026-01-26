@@ -1,4 +1,3 @@
-// src/layouts/dashboard.tsx
 import { Routes, Route } from "react-router-dom";
 import { Cog6ToothIcon } from "@heroicons/react/24/solid";
 import { IconButton } from "@material-tailwind/react";
@@ -11,7 +10,7 @@ import {
 } from "@/widgets/layout";
 
 import routes from "@/routes";
-import NewProject from "@/pages/projects/newProject";
+import { NewProject, EditProject, ProjectDetails } from "@/pages/dashboard/projects";
 import {
   useMaterialTailwindController,
   setOpenConfigurator,
@@ -47,7 +46,6 @@ export function Dashboard(): JSX.Element {
         </IconButton>
 
         <Routes>
-          {/* Rotas do menu (sidenav) */}
           {routes.map(
             ({ layout, pages }) =>
               layout === "dashboard" &&
@@ -56,9 +54,13 @@ export function Dashboard(): JSX.Element {
               ))
           )}
 
+          <Route path="/projects/newProject" element={<NewProject />} />
+          <Route path="/projects/:projectId" element={<ProjectDetails />} />
+          <Route path="/projects/:projectId/editProject" element={<EditProject />} />
+
           <Route
-            path="/projects/newProject"
-            element={<NewProject />}
+            path="/projects/:projectId/tasks/new"
+            element={<div>Nova Task</div>}
           />
         </Routes>
 

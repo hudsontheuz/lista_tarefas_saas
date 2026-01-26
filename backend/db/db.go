@@ -31,7 +31,6 @@ func ConectaComBancoDeDados() {
 		log.Fatalf("Erro ao conectar no banco de dados: %v", err)
 	}
 
-	// extensão correta para UUID
 	database.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`)
 
 	DB = database

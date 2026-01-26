@@ -28,8 +28,8 @@ func CarregaRotas() {
 	router.HandleFunc("/projects", controllers.CreateProject).Methods("POST")
 	router.HandleFunc("/projects", controllers.GetProjects).Methods("GET")
 	router.HandleFunc("/projects/{id}", controllers.GetProjectByID).Methods("GET")
-
-
+	router.HandleFunc("/projects/{id}", controllers.DeleteProject).Methods("DELETE")
+	router.HandleFunc("/projects/{id}", controllers.UpdateProject).Methods("PUT")
 
 	log.Fatal(
 		http.ListenAndServe(
