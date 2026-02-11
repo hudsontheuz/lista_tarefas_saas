@@ -2,53 +2,41 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
-	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/google/uuid"
-
+	"github.com/gorilla/mux"
+	appProject "github.com/hudsontheuz/lista_tarefas_saas/application/project"
 	"github.com/hudsontheuz/lista_tarefas_saas/db"
+	domainProject "github.com/hudsontheuz/lista_tarefas_saas/domain/project"
 	"github.com/hudsontheuz/lista_tarefas_saas/dto"
-	"github.com/hudsontheuz/lista_tarefas_saas/models"
-	"github.com/hudsontheuz/lista_tarefas_saas/services"
+	"github.com/hudsontheuz/lista_tarefas_saas/infrastructure/repositories"
 )
+
+func projectUseCase() *appProject.UseCase {
+	repo := repositories.NewProjectRepository(db.DB)
+	return appProject.NewUseCase(repo)
+}
 
 func CreateProject(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var input dto.CreateProjectInput
-
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, "dados inválidos", http.StatusBadRequest)
 		return
 	}
 
-	if input.Name == "" || input.Prefix == "" {
-		http.Error(w, "nome e prefixo são obrigatórios", http.StatusBadRequest)
-		return
-	}
-
 	userID := uuid.MustParse("11111111-1111-1111-1111-111111111111")
-
-	tag, err := services.GenerateProjectTag(input.Prefix)
+	project, err := projectUseCase().Create(userID, input.Prefix, input.Name, input.Description, input.Status)
 	if err != nil {
-		http.Error(w, "erro ao gerar tag do projeto", http.StatusInternalServerError)
-		return
-	}
-
-	project := models.Project{
-		ID:          uuid.New(),
-		UserID:      userID,
-		Tag:         tag,
-		Name:        input.Name,
-		Description: input.Description,
-		Status:      input.Status,
-		CreatedAt:   time.Now(),
-	}
-
-	if err := db.DB.Create(&project).Error; err != nil {
-		http.Error(w, "erro ao criar projeto", http.StatusInternalServerError)
+		switch {
+		case errors.Is(err, domainProject.ErrNameRequired), errors.Is(err, domainProject.ErrPrefixRequired):
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		default:
+			http.Error(w, "erro ao criar projeto", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -59,9 +47,8 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 func GetProjects(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var projects []models.Project
-
-	if err := db.DB.Order("created_at desc").Find(&projects).Error; err != nil {
+	projects, err := projectUseCase().List()
+	if err != nil {
 		http.Error(w, "erro ao buscar projetos", http.StatusInternalServerError)
 		return
 	}
@@ -80,11 +67,13 @@ func GetProjectByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := uuid.MustParse("11111111-1111-1111-1111-111111111111")
-
-	var project models.Project
-
-	if err := db.DB.First(&project, "id = ? AND user_id = ?", id, userID).Error; err != nil {
-		http.Error(w, "projeto não encontrado", http.StatusNotFound)
+	project, err := projectUseCase().GetByID(id, userID)
+	if err != nil {
+		if errors.Is(err, appProject.ErrProjectNotFound) {
+			http.Error(w, "projeto não encontrado", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "erro ao buscar projeto", http.StatusInternalServerError)
 		return
 	}
 
@@ -101,23 +90,13 @@ func DeleteProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Mesmo userID fixo usado nos outros endpoints
 	userID := uuid.MustParse("11111111-1111-1111-1111-111111111111")
-
-	result := db.DB.Delete(
-		&models.Project{},
-		"id = ? AND user_id = ?",
-		id,
-		userID,
-	)
-
-	if result.Error != nil {
+	if err := projectUseCase().DeleteByID(id, userID); err != nil {
+		if errors.Is(err, appProject.ErrProjectNotFound) {
+			http.Error(w, "projeto não encontrado", http.StatusNotFound)
+			return
+		}
 		http.Error(w, "erro ao deletar projeto", http.StatusInternalServerError)
-		return
-	}
-
-	if result.RowsAffected == 0 {
-		http.Error(w, "projeto não encontrado", http.StatusNotFound)
 		return
 	}
 
@@ -141,31 +120,15 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := uuid.MustParse("11111111-1111-1111-1111-111111111111")
-
-	var project models.Project
-
-	if err := db.DB.First(&project, "id = ? AND user_id = ?", id, userID).Error; err != nil {
-		http.Error(w, "projeto não encontrado", http.StatusNotFound)
-		return
-	}
-
-	// Atualizações controladas
-	if input.Name != "" {
-		project.Name = input.Name
-	}
-
-	project.Description = input.Description
-
-	if input.Status != "" {
-		project.Status = input.Status
-	}
-
-	if err := db.DB.Save(&project).Error; err != nil {
+	project, err := projectUseCase().Update(id, userID, input.Name, input.Description, input.Status)
+	if err != nil {
+		if errors.Is(err, appProject.ErrProjectNotFound) {
+			http.Error(w, "projeto não encontrado", http.StatusNotFound)
+			return
+		}
 		http.Error(w, "erro ao atualizar projeto", http.StatusInternalServerError)
 		return
 	}
 
 	json.NewEncoder(w).Encode(project)
 }
-
-
