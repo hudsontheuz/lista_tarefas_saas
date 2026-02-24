@@ -124,18 +124,3 @@ npm run dev
 ```
 
 Frontend disponível em `http://localhost:5173`.
-
-## Próximos passos sugeridos
-
-Se quiser evoluir esse estudo para algo mais próximo de produção:
-
-- implementar autenticação JWT e controle de acesso por usuário real;
-- adicionar testes (unitários + integração);
-- padronizar respostas de erro e validações;
-- adicionar logs estruturados e monitoramento;
-- criar pipeline CI para lint/test/build;
-- documentar endpoints com OpenAPI/Swagger.
-
----
-
-Se você chegou aqui para avaliar o projeto: pode considerar este repo como um **diário prático de aprendizado de APIs**, usando um domínio de tarefas para tornar os experimentos mais concretos.
